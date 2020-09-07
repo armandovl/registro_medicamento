@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    
+ /*----------------//Estoy añadiento tres controles-------------------*/
+      google.load('visualization', '1.0', {'packages':['controls','corechart','timeline', 'table']});
+/*----------------//Estoy añadiento tres controles-------------------*/
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawSheetName);
+
+   function drawSheetName() {
+      
+
+var queryString = encodeURIComponent('SELECT B, A, C LIMIT 1000 OFFSET 0'); //Limit solo voy a agarrar 1000 filas columna A, offset empieza a contar fila 0
+
+      var query = new google.visualization.Query(
+          'https://docs.google.com/spreadsheets/d/1EHaykorO36iVSJZiOe2SFMhtj7AzSoR1tL8k41B6r4w/gviz/tq?sheet=medicamento&headers=1&tq=' + queryString);
+      query.send(handleSampleDataQueryResponse);
+    }
+
+     handleSampleDataQueryResponse();//estamos llamando a la funcion lo cual se le olvida en el ejemplo
+    function handleSampleDataQueryResponse(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+        
+var data = response.getDataTable();
+      
+      // Create un tablero.
+        var dashboard = new google.visualization.Dashboard(
+            document.getElementById('dashboard_div')); //así se va a llamar el tablero
+
+        // Create a filtro por numeros
+        var Filtro_Numeros = new google.visualization.ControlWrapper({
+          'controlType': 'DateRangeFilter',
+          'containerId': 'filtroporAtendidos',
+          'options': {
+            'filterColumnLabel': 'Marca temporal'
+          }
+        });
+        
+        
+        // Create a filtro por categoria
+        var Filtro_Categoria = new google.visualization.ControlWrapper({
+          'controlType': 'CategoryFilter',
+          'containerId': 'filtroporsemaforo',
+          'options': {
+            'filterColumnLabel': 'Medicamento'
+          }
+        });
+        
+        
+
+        
+         // Create a pie chart, passing some options
+        var TableChart = new google.visualization.ChartWrapper({
+          'chartType': 'Table',
+          'containerId': 'chart_Tabla',
+          'options': {
+            'width': 850,
+            'height': 300,
+            
+            
+          }
+        });
+        
+
+        var NuevaChart = new google.visualization.ChartWrapper({
+          'chartType': 'Timeline',
+          'containerId': 'chart_tiempo',
+          'options': {
+            'width': 1050,
+            'height': 350,
+            
+            
+          }
+        });
+        
+
+        dashboard.bind([Filtro_Numeros,Filtro_Categoria],[TableChart,NuevaChart]); //primero van los filtros, despues van las graficas
+
+        // Draw the dashboard.
+        dashboard.draw(data);
+    
+     exportarAExcel();
+    
+    
+    
+    }//Aqui se acaba la funcion
+
+
+    function exportarAExcel() {
+      var Componentes = [
+          
+          {type: 'csv', datasource: 'https://spreadsheets.google.com/tq?sheet=RegistroMedicamento&key=1EHaykorO36iVSJZiOe2SFMhtj7AzSoR1tL8k41B6r4w'},
+          {type: 'html', datasource: 'https://spreadsheets.google.com/tq?sheet=RegistroMedicamento&key=1EHaykorO36iVSJZiOe2SFMhtj7AzSoR1tL8k41B6r4w'},
+          
+      ];
+
+      var Contenedor = document.getElementById('toolbar_div');
+      google.visualization.drawToolbar(Contenedor, Componentes);
+    };
+
+      
+    </script>
+  </head>
+
+  <body>
+    <center>
+      <div id="dashboard_div"></div>
+      <!--Divs that will hold each control and chart-->
+      <div id="filtroporAtendidos"></div>
+      <br>
+      <div id="filtroporsemaforo"></div>
+      <br>
+      <div id="chart_tiempo"></div>
+
+      <div id="toolbar_div"></div>
+
+      <div id="chart_Tabla"></div>
+    </center>
+    <br><br><br><br><br>
+  </body>
+</html>
+
+
+
